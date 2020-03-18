@@ -1,6 +1,8 @@
 package com.gagan.creditcard.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.gagan.creditcard.dao.CreditCardRepository;
+import com.gagan.creditcard.exception.DuplicateCardException;
 import com.gagan.creditcard.model.Card;
 import com.gagan.creditcard.service.impl.CreditCardServiceImpl;
 
@@ -29,12 +32,12 @@ public class CreditCardServiceTest {
 	}
 
 	Card card = null;
-	
+
 	@BeforeEach
 	public void setUp() {
 		card = new Card("Gagan", "4769 9765 4321 0010", new BigDecimal(1000));
 	}
-	
+
 	@Autowired
 	private CreditCardService creditCardService;
 
@@ -70,5 +73,17 @@ public class CreditCardServiceTest {
 		Mockito.when(creditCardRepo.save(card)).thenReturn(card);
 		Card returnedCard = creditCardService.add(card);
 		Assertions.assertNull(returnedCard);
+	}
+
+	@Test
+	public void testAddCreditCardWithDuplicateCardNumber() {
+		creditCardService.add(card);
+		List<Card> cardList = new ArrayList<>();
+		cardList.add(card);
+		Mockito.when(creditCardRepo.save(card)).thenReturn(card);
+		Mockito.when(creditCardRepo.getCardByNumber(card.getCardNumber())).thenReturn(cardList);
+		Assertions.assertThrows(DuplicateCardException.class, () -> {
+			creditCardService.add(card);
+		});
 	}
 }

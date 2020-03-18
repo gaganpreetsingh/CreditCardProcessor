@@ -7,26 +7,45 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.springframework.util.StringUtils;
+
+import com.gagan.creditcard.constant.Constants;
 
 @Entity
-public class Card {
+public class Card implements Comparable<Card> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int cardId;
 
+	@NotEmpty(message = "Card Holder Name is required")
 	private String cardHolderName;
+
+	@NotEmpty(message = "Card Holder Number is required.")
+	@Size(max = 19, message = "Max length allowed is 19")
+	@Column(unique = true)
 	private String cardNumber;
 
 	@Column(name = "card_limit")
+	@NotNull(message = "Limit is required")
 	private BigDecimal limit;
+
 	private BigDecimal balance;
 
+	public Card() {
+		this.balance = new BigDecimal(0); // Set default to 0 as per requirement
+	}
+
 	public Card(String cardHolderName, String cardNumber, BigDecimal limit) {
+		this();
 		this.cardHolderName = cardHolderName;
 		this.cardNumber = cardNumber;
 		this.limit = limit;
-		this.balance = new BigDecimal(0);
 	}
 
 	public String getCardHolderName() {
@@ -50,7 +69,11 @@ public class Card {
 	}
 
 	public void setCardNumber(String cardNumber) {
-		this.cardNumber = cardNumber;
+		if (!StringUtils.isEmpty(cardNumber)) {
+			this.cardNumber = cardNumber.replaceAll(Constants.WHITESPACE, Constants.EMPTY_STRING);
+		} else {
+			this.cardNumber = cardNumber;
+		}
 	}
 
 	public BigDecimal getLimit() {
@@ -78,12 +101,19 @@ public class Card {
 	@Override
 	public boolean equals(Object object) {
 		boolean isEqual = false;
-		
+
 		if (object instanceof Card) {
 			Card card = (Card) object;
 			isEqual = card.getCardNumber().equals(this.getCardNumber());
 		}
 		return isEqual;
 	}
-	
+
+	@Override
+	public int compareTo(Card card) {
+		int x = card.getCardId();
+		int y = this.getCardId();
+		return (x < y) ? -1 : ((x == y) ? 0 : 1);
+	}
+
 }
