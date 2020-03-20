@@ -8,15 +8,16 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gagan.creditcard.api.validator.CreditCardValidator;
 import com.gagan.creditcard.api.response.ApiResponse;
 import com.gagan.creditcard.api.response.ResponseStatus;
+import com.gagan.creditcard.api.validator.CreditCardValidator;
 import com.gagan.creditcard.constant.Constants;
 import com.gagan.creditcard.exception.DuplicateCardException;
 import com.gagan.creditcard.model.Card;
@@ -24,6 +25,7 @@ import com.gagan.creditcard.service.CreditCardService;
 
 @RestController
 @RequestMapping("/api/v1/cards/*")
+@CrossOrigin(origins=  "${endpoints.web.cors.allowed-origins}")
 public class CardController {
 
 	@Autowired
